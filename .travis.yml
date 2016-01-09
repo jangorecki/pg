@@ -1,0 +1,29 @@
+language: r
+sudo: required
+
+before_install:
+ - sudo service postgresql stop
+ - sudo apt-get remove --purge -y postgresql-9.1
+
+apt_packages:
+ - postgresql-9.5
+ - libpq-dev
+
+r_packages:
+ - DBI
+ - data.table
+
+r_github_packages:
+ - olafmersmann/microbenchmarkCore
+ - jangorecki/RPostgreSQL_old@newfeatures
+ - jangorecki/logR
+
+env:
+ - POSTGRES_HOST="127.0.0.1" POSTGRES_DATABASE=r_db POSTGRES_USER=r_user POSTGRES_PASSWORD=r_password POSTGRES_PORT=5433
+
+before_script:
+ - sudo su postgres -c "psql -p 5433 -c \"CREATE USER r_user WITH PASSWORD 'r_password';\""
+ - sudo su postgres -c "createdb -p 5433 -O r_user r_db"
+
+after_script:
+  - cat $(find . -maxdepth 1 -name "*.Rcheck" -type d)/tests/tests.Rout
