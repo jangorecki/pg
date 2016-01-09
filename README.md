@@ -2,7 +2,7 @@
 
 Postgres utilities for R language
 
-- based on RPostgreSQL [RPostgreSQL](https://github.com/tomoakin/RPostgreSQL)
+- based on [RPostgreSQL](https://github.com/tomoakin/RPostgreSQL)
 - logging powered by [logR](https://github.com/jangorecki/logR)
 
 Features:  
