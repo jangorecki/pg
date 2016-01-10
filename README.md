@@ -22,9 +22,8 @@ R
 install.packages(c("microbenchmarkCore","logR"), repos = paste0("https://",c(
     "cran.rstudio.com",
     "olafmersmann.github.io/drat",
-    "jangorecki.github.io/drat"
+    "jangorecki.github.io/logR"
 )))
-
 library(devtools)
 # install RPostgreSQL with `match.cols` support - hopefully will be merge to upstream
 install_github("jangorecki/RPostgreSQL_old@newfeatures")
