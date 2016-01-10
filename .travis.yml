@@ -11,11 +11,11 @@ apt_packages:
 
 r_packages:
  - DBI
+ - RPostgreSQL
  - data.table
 
 r_github_packages:
  - olafmersmann/microbenchmarkCore
- - jangorecki/RPostgreSQL_old@newfeatures
  - jangorecki/logR
 
 env:

@@ -24,22 +24,30 @@ install.packages(c("microbenchmarkCore","logR"), repos = paste0("https://",c(
     "olafmersmann.github.io/drat",
     "jangorecki.github.io/logR"
 )))
+
 library(devtools)
-# install RPostgreSQL with `match.cols` support - hopefully will be merge to upstream
-install_github("jangorecki/RPostgreSQL_old@newfeatures")
+
 # install pg
 install_github("jangorecki/pg")
+
+# currently not required
+# `match.cols` argument to dbWriteTable - hopefully will be merged to upstream
+#install_github("jangorecki/RPostgreSQL_old@newfeatures")
 ```
 
 postgres
 ```r
-docker run -it --rm -p 5432 -e POSTGRES_USER=r_user -e POSTGRES_PASSWORD=r_password -e POSTGRES_DB=r_db -e POSTGRES_PORT=5432 --name pg postgres:9.5
+docker run -it --rm -p 5432 \
+         -e POSTGRES_USER=r_user -e POSTGRES_PASSWORD=r_password \
+         -e POSTGRES_DB=r_db -e POSTGRES_PORT=5432 \
+         --name pg postgres:9.5
 ```
 
 ## Setup
 
 ```r
-# Sys.setenv(POSTGRES_HOST="172.17.0.2") # use this for non-localhost postgres
+## non-localhost postgres
+# Sys.setenv(POSTGRES_HOST="172.17.0.2")
 
 suppressPackageStartupMessages({
     library(data.table)
@@ -90,7 +98,7 @@ pgReadTable(c("r_data","techstamp"))
 pgReadTable(c("r_tech","logr"), .log = FALSE)
 pgReadTable(c("r_tech","logr"), .log = FALSE)[, .(in_rows, out_rows), .(run_id, r_fun, r_args)]
 
-# temporal 'latest' query using tech timestamp
+# temporal *latest* query on loading timestamp by 'a' column
 pgGetQuery("SELECT DISTINCT ON (a) * FROM r_data.techstamp ORDER BY a, r_timestamp DESC;")
 ```
 
