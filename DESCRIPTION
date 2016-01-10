@@ -1,8 +1,8 @@
 Package: pg
 Type: Package
 Title: Postgres database tools for R
-Version: 0.1
-Date: 2016-01-08
+Version: 0.1.9
+Date: 2016-01-10
 Author: Jan Gorecki
 Maintainer: Jan Gorecki <j.gorecki@wit.edu.pl>
 Description: Wrappers on RPostgreSQL interface to postgres database, by default
@@ -11,8 +11,7 @@ Description: Wrappers on RPostgreSQL interface to postgres database, by default
 Imports:
     DBI,
     RPostgreSQL,
-    data.table,
-    logR
+    data.table (>= 1.9.6),
+    logR (>= 2.1.2)
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 5.0.1

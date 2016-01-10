@@ -159,8 +159,8 @@ stopifnot(
 )
 
 ## preview logs for interactive test dev
-ppc(40)
-pgReadTable(c("r_tech","logr"), .log = FALSE)
+# ppc(40)
+# pgReadTable(c("r_tech","logr"), .log = FALSE)
 
 # vectorized cleaning -----------------------------------------------------
 
@@ -168,6 +168,6 @@ pgReadTable(c("r_tech","logr"), .log = FALSE)
 # vectorized drop tables
 tbls = pgListTables(schema_name = "r_data")
 #pgDropTable(tbls, cascade = TRUE)
-# stopifnot(!pgExistsTable(tbls))
+#stopifnot(!pgExistsTable(tbls))
 
 q("no")
