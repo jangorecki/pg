@@ -58,6 +58,8 @@ stopifnot(
     identical(dim(pgReadTable(c("r_data","non_techstamp"))), c(5L,2L))
 )
 
+# batch processing --------------------------------------------------------
+
 # validate truncate
 pgTruncateTable(c("r_data","non_techstamp"))
 stopifnot(pgGetQuery("SELECT count(*) cnt FROM r_data.non_techstamp;")$cnt==0L)
@@ -85,6 +87,8 @@ stopifnot(all.equal(
     data.table(run_id = c(NA, 1L, 2L), in_rows = c(4L,5L,3L), N = rep(1L,3L))
 ))
 
+# temporal queries --------------------------------------------------------
+
 # temporal query: latest
 stopifnot(all.equal(
     pgGetQuery("SELECT DISTINCT ON (a) * FROM r_data.techstamp ORDER BY a, r_timestamp DESC;"),
@@ -99,9 +103,71 @@ stopifnot(all.equal(
 ))
 
 # temporal query: difference
+# TO DO
 
 
-# upsert
+# upsert ------------------------------------------------------------------
 
+pgTruncateTable(c("r_data","techstamp"))
+pgSendQuery('CREATE UNIQUE INDEX unq_techstamp ON r_data.techstamp (a);')
+
+# upsert do nothing
+dt = data.table(a = 1:4, b = letters[4:1])
+pgUpsertTable(c("r_data","techstamp"), dt)
+options("run_id" = new_run_id(.log = FALSE))
+dt = data.table(a = 3:7, b = letters[7:3])
+pgUpsertTable(c("r_data","techstamp"), dt)
+options("run_id" = new_run_id(.log = FALSE))
+dt = data.table(a = 8:10, b = letters[10:8])
+pgUpsertTable(c("r_data","techstamp"), dt)
+
+stopifnot(all.equal(
+    pgReadTable(c("r_data","techstamp"), .log = FALSE)[, .N, run_id],
+    data.table(run_id = 2:4, N = c(4L,3L,3L))
+))
+
+# upsert do update
+pgTruncateTable(c("r_data","techstamp"))
+on_conflict = "DO UPDATE SET run_id = excluded.run_id"
+dt = data.table(a = 1:4, b = letters[4:1])
+pgUpsertTable(c("r_data","techstamp"), dt, conflict_by = "a", on_conflict = on_conflict)
+options("run_id" = new_run_id(.log = FALSE))
+dt = data.table(a = 3:7, b = letters[7:3])
+pgUpsertTable(c("r_data","techstamp"), dt, conflict_by = "a", on_conflict = on_conflict)
+options("run_id" = new_run_id(.log = FALSE))
+dt = data.table(a = 8:10, b = letters[10:8])
+pgUpsertTable(c("r_data","techstamp"), dt, conflict_by = "a", on_conflict = on_conflict)
+
+stopifnot(all.equal(
+    pgReadTable(c("r_data","techstamp"), .log = FALSE)[, .N, run_id],
+    data.table(run_id = 4:6, N = c(2L,5L,3L))
+))
+
+# upsert - test non dropping staging if provided
+stopifnot(!pgExistsTable(c("r_data","tmp_techstamp")))
+options("run_id" = new_run_id(.log = FALSE))
+dt = data.table(a = 6:9, b = letters[9:6])
+pgUpsertTable(c("r_data","techstamp"), dt, stage_name = c("r_data","stage_techstamp"), conflict_by = "a", on_conflict = on_conflict)
+
+stopifnot(
+    pgExistsTable(c("r_data","stage_techstamp"), .log = FALSE),
+    nrow(pgReadTable(c("r_data","stage_techstamp"), .log = FALSE))==4L,
+    all.equal(
+        pgReadTable(c("r_data","techstamp"), .log = FALSE)[, .N, run_id],
+        data.table(run_id = 4:7, N = c(2L,3L,1L,4L))
+    )
+)
+
+## preview logs for interactive test dev
+ppc(40)
+pgReadTable(c("r_tech","logr"), .log = FALSE)
+
+# vectorized cleaning -----------------------------------------------------
+
+# TO DO
+# vectorized drop tables
+tbls = pgListTables(schema_name = "r_data")
+#pgDropTable(tbls, cascade = TRUE)
+# stopifnot(!pgExistsTable(tbls))
 
 q("no")

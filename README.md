@@ -7,11 +7,12 @@ Postgres utilities for R language
 
 ## Features
 
-- wrappers on many commonly used `DBI::db*` functions, enables logging, default `conn` and other arguments
-- new functions: `pgExistsSchema`, `pgTruncateTable`, `pgListTableColumns`, `pgDropSchema`, `pgListTableColumns` and potentially more in future
-- data transfered over `pgWriteTable` enables transparent technical metadata stamping
-- metadata for logging with logR can store custom arbitrary information
-- helpers for processing batches of the data
+- wrappers on many commonly used `DBI::db*` functions enables logging, default values for various arguments, including connection `conn`.
+- new functions: `pgTruncateTable`, `pgUpsertTable`, `pgSendUpsent`, `pgExistsSchema`, `pgListTableColumns`, `pgDropSchema`.
+- technical row-level metadata stamping for data transferred to database.
+- process-level metadata logging with logR, `pg*` functions or any other call wrapped into `logR()`.
+- helpers for processing batches of the data.
+- enables vectorize input for many wrappers.
 
 ## Installation
 
@@ -50,7 +51,7 @@ suppressPackageStartupMessages({
 options("pg.conn" = pgConnect(dbname = "r_db", user = "r_user", password = "r_password"))
 
 # logR setup
-meta = function(run_id=get_run_id(), r_user = as.character(Sys.info()[["user"]])[1L], r_timestamp = Sys.time(), r_fun = NA_character_, r_args = NA_character_) list(run_id=run_id, r_user=r_user, r_timestamp=r_timestamp, r_fun=r_fun, r_args=paste(r_args, collapse=","))
+meta = function(run_id = get_run_id(), r_user = as.character(Sys.info()[["user"]])[1L], r_timestamp = Sys.time(), r_fun = NA_character_, r_args = NA_character_) list(run_id=run_id, r_user=r_user, r_timestamp=r_timestamp, r_fun=r_fun, r_args=paste(r_args, collapse=","))
 create_meta = list(run_id = "INTEGER", r_user = "VARCHAR(255)", r_timestamp = "TIMESTAMPTZ", r_fun = "VARCHAR(255)", r_args = "VARCHAR(255)")
 options("logR.conn" = getOption("pg.conn"),
         "logR.schema" = "r_tech",
@@ -98,4 +99,4 @@ For more examples and full reproducible environment see CI workflow and [tests/t
 
 ## Notes
 
-Only postgres 9.5+ support is planned, currently there is no 9.5+ specific code yet.  
+Only postgres 9.5+ support is planned.  

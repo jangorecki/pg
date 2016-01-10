@@ -42,7 +42,7 @@ create_run_table = function(schema_name, table_name = "run", drop = FALSE, silen
 #' @name new_run_id
 new_run_id = function(conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
     stopifnot(!is.null(conn), is.logical(.log))
-    run_id = pgGetQuery(sprintf("INSERT INTO r_tech.run (r_timestamp) VALUES ('%s+00'::TIMESTAMPTZ) RETURNING run_id;", format(Sys.time(), "%Y-%m-%d %H:%M:%OS")),
+    run_id = pgGetQuery(sprintf("INSERT INTO r_tech.run (r_timestamp) VALUES ('%s'::TIMESTAMPTZ) RETURNING run_id;", format(Sys.time(), "%Y-%m-%d %H:%M:%OS")),
                         conn = conn,
                         .log = .log)$run_id
     run_id

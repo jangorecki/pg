@@ -16,6 +16,10 @@ export(pgTruncateTable)
 export(pgListFields)
 export(pgListTableColumns)
 export(pgDropSchema)
+export(pgDropTable)
+export(pgRemoveTable)
+export(pgSendUpsert)
+export(pgUpsertTable)
 
 # tools
 export(create_run_table)

@@ -5,7 +5,7 @@
 NULL
 
 #' @name pg
-#' @title pg* wrappers to DBI::pg*
+#' @title pg* wrappers to DBI::db*
 #' @description Many wrappers around `DBI::db*` functions. Some new wrappers added are `pgTruncateTable`, `pgExistsSchema`, `pgDropSchema`, `pgListTableColumns`. Follow `tests/tests.R` script for reproducible workflow with tests.
 #' @param conn active connection to postgres database, by default `getOption("pg.conn")`.
 #' @param .log logical default `getOption("pg.log",TRUE)` decides if call is logged using *logR*.
@@ -14,6 +14,9 @@ NULL
 #' @param value data.table
 #' @param key character vector of columns to be used to set data.table key on the db results.
 #' @param norows arbitrat object which will be returned in case of 0 rows result from db.
+#' @param stage_name character, staging schema-table name used for performing *Upsert*.
+#' @param conflict_by character vector, will be used collapsed in `ON CONFLICT (conflict_by) DO ...`.
+#' @param on_conflict character scalar to be send as `ON CONFLICT` postgres content. Key column set for conflict may be included here, but then should not be provided to `conflict_by` argument. Default `DO NOTHING`.
 #' @param techstamp logical decides if `dbWriteTable` will add technical metadata on saving each object to db.
 #' @param schema_name character vector of schema names to be checked by `pgExistsSchema` or dropped by `pgDropSchema`.
 #' @param select character vector of column names to fetch from `information_schema.columns` table.
@@ -35,10 +38,10 @@ pgConnect = function(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"), port = Sys
 }
 
 #' @rdname pg
-pgSendQuery = function(statement, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+pgSendQuery = function(statement, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
     stopifnot(!is.null(conn), is.character(statement), is.logical(.log))
     invisible(logR(dbSendQuery(conn, statement),
-                   silent = FALSE,
+                   silent = silent,
                    meta = meta(r_fun = "dbSendQuery", r_args = statement),
                    .log = .log))
 }
@@ -98,23 +101,33 @@ pgExistsSchema = function(schema_name, conn = getOption("pg.conn"), .log = getOp
                         norows = data.table(schema_name = character(0)),
                         conn = conn,
                         .log = .log)
-    if(length(schema_name)==1L) as.logical(nrow(schema)) else nrow(schema)==length(schema_name)
+    schema_name %in% schema$schema_name
 }
 
 #' @rdname pg
-pgListTables = function(conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+pgListTables = function(schema_name, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
     stopifnot(!is.null(conn), is.logical(.log))
-    logR(dbListTables(conn),
-         silent = FALSE,
-         meta = meta(r_fun = "dbListTables"),
-         .log = .log)
+    if(!missing(schema_name)){
+        in_schema = sprintf("and schemaname IN (%s)",paste(paste0("'",schema_name,"'"),collapse=","))
+        logR(dbListTables(conn, in_schema),
+             silent = FALSE,
+             meta = meta(r_fun = "dbListTables", r_args = paste(schema_name, collapse=",")),
+             .log = .log)
+    } else {
+        logR(dbListTables(conn),
+             silent = FALSE,
+             meta = meta(r_fun = "dbListTables"),
+             .log = .log)
+    }
 }
 
 #' @rdname pg
-pgTruncateTable = function(name, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log))
+pgTruncateTable = function(name, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    stopifnot(!is.null(conn), is.logical(.log), is.logical(silent))
+    # TO DO support vectorized
     name = schema_table(name)
     pgSendQuery(sprintf("TRUNCATE TABLE %s;", paste(name, collapse=".")),
+                silent = silent,
                 conn = conn,
                 .log = .log)
 }
@@ -126,7 +139,6 @@ pgListFields = function(name, conn = getOption("pg.conn"), .log = getOption("pg.
     logR(dbListFields(conn, name),
          silent = FALSE,
          meta = meta(r_fun = "dbListFields"),
-         conn = conn,
          .log = .log)
 }
 
@@ -147,10 +159,70 @@ pgListTableColumns = function(schema_name, select = c("table_schema", "table_nam
 #' @rdname pg
 pgDropSchema = function(schema_name, cascade = FALSE, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
     stopifnot(!is.null(conn), is.logical(.log), is.character(schema_name), length(schema_name)>0L, is.logical(cascade), is.logical(silent))
-    invisible(lapply(setNames(nm = schema_name),
-                     function(schema){
-                         sql = sprintf("DROP SCHEMA %s%s;", schema, if(cascade) " CASCADE" else "")
-                         if(silent) try(pgSendQuery(sql, conn = conn, .log = .log), silent = silent)
-                         else pgSendQuery(sql, conn = conn, .log = .log)
-                     }))
+    invisible(sapply(
+        setNames(nm = schema_name),
+        function(schema) pgSendQuery(sprintf("DROP SCHEMA %s%s;", schema, if(cascade) " CASCADE" else ""), silent = silent, conn = conn, .log = .log)
+    ))
+}
+
+#' @rdname pg
+pgRemoveTable = function(name, cascade = FALSE, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    stopifnot(!is.null(conn), is.logical(.log), is.character(name), is.logical(cascade), is.logical(silent))
+    name = schema_table(name)
+    # local dbRemoveTable to allow cascade
+    dbRemoveTable = function(conn, name, cascade = FALSE){
+        # https://github.com/tomoakin/RPostgreSQL/blob/35f4d7e4510992bee9b06a886eedac21f8688ebf/RPostgreSQL/R/PostgreSQL.R#L191
+        if(RPostgreSQL::dbExistsTable(conn, name)){
+            rc <- try(RPostgreSQL::dbGetQuery(conn, sprintf("DROP TABLE %s%s;", RPostgreSQL::postgresqlTableRef(name), if(cascade) " CASCADE" else "")))
+            !inherits(rc, RPostgreSQL:::ErrorClass)
+        }
+        else FALSE
+    }
+    logR(dbRemoveTable(conn, name, cascade),
+         silent = silent,
+         meta = meta(r_fun = "dbRemoveTable", r_args = paste(name, collapse=".")),
+         .log = .log)
+}
+
+#' @rdname pg
+pgDropTable = function(name, cascade = FALSE, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    stopifnot(!is.null(conn), is.logical(.log), is.character(name), is.logical(cascade), is.logical(silent))
+    # detect if c(schema,table), otherwise process already collapsed schema.table vectorized, similarly to pgDropSchema but here tricky detection is required
+    vec = FALSE # TO DO
+    if(!vec) name = setNames(list(name), paste(name, collapse="."))
+    sapply(name, pgRemoveTable, cascade = cascade, silent = silent, conn = conn, .log = .log)
+}
+
+#' @rdname pg
+pgSendUpsert = function(stage_name, name, conflict_by, on_conflict = "DO NOTHING", techstamp = TRUE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    stopifnot(!is.null(conn), is.logical(.log), is.logical(techstamp), is.character(on_conflict), length(on_conflict)==1L)
+    cols = pgListFields(stage_name)
+    cols = setdiff(cols, c("run_id","r_timestamp")) # remove techstamp to have clean column list, as the fresh one will be used, if any
+    # sql
+    insert_into = sprintf("INSERT INTO %s.%s (%s)", name[1L], name[2L], paste(if(techstamp) c(cols, c("run_id","r_timestamp")) else cols, collapse=", "))
+    select = sprintf("SELECT %s", paste(cols, collapse=", "))
+    if(techstamp) select = sprintf("%s, %s::INTEGER run_id, '%s'::TIMESTAMPTZ r_timestamp", select, get_run_id(), format(Sys.time(), "%Y-%m-%d %H:%M:%OS"))
+    from = sprintf("FROM %s.%s", stage_name[1L], stage_name[2L])
+    if(!missing(conflict_by)) on_conflict = paste(paste0("(",paste(conflict_by, collapse=", "),")"), on_conflict)
+    on_conflict = paste("ON CONFLICT",on_conflict)
+    sql = paste0(paste(insert_into, select, from, on_conflict), ";")
+    pgSendQuery(sql, conn = conn, .log = .log)
+}
+
+#' @rdname pg
+pgUpsertTable = function(name, value, conflict_by, on_conflict = "DO NOTHING", stage_name, techstamp = TRUE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    stopifnot(!is.null(conn), is.logical(.log), is.logical(techstamp), is.character(on_conflict), length(on_conflict)==1L)
+    name = schema_table(name)
+    if(!missing(stage_name)){
+        stage_name = schema_table(stage_name)
+        drop_stage = FALSE
+    } else {
+        stage_name = name
+        stage_name[2L] = paste("tmp", stage_name[2L], sep="_")
+        drop_stage = TRUE
+    }
+    if(pgExistsTable(stage_name)) pgTruncateTable(name = stage_name, conn = conn, .log = .log)
+    pgWriteTable(name = stage_name, value = value, techstamp = techstamp, conn = conn, .log = .log)
+    on.exit(if(drop_stage) pgDropTable(stage_name, conn = conn, .log = .log))
+    pgSendUpsert(stage_name = stage_name, name = name, conflict_by = conflict_by, on_conflict = on_conflict, techstamp = techstamp, conn = conn, .log = .log)
 }

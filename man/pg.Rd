@@ -4,6 +4,7 @@
 \alias{pg}
 \alias{pgConnect}
 \alias{pgDropSchema}
+\alias{pgDropTable}
 \alias{pgExistsSchema}
 \alias{pgExistsTable}
 \alias{pgGetQuery}
@@ -11,10 +12,13 @@
 \alias{pgListTableColumns}
 \alias{pgListTables}
 \alias{pgReadTable}
+\alias{pgRemoveTable}
 \alias{pgSendQuery}
+\alias{pgSendUpsert}
 \alias{pgTruncateTable}
+\alias{pgUpsertTable}
 \alias{pgWriteTable}
-\title{pg* wrappers to DBI::pg*}
+\title{pg* wrappers to DBI::db*}
 \usage{
 pgConnect(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"),
   port = Sys.getenv("POSTGRES_PORT", "5432"),
@@ -22,7 +26,7 @@ pgConnect(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"),
   user = Sys.getenv("POSTGRES_USER", "postgres"),
   password = Sys.getenv("POSTGRES_PASSWORD", "postgres"))
 
-pgSendQuery(statement, conn = getOption("pg.conn"),
+pgSendQuery(statement, silent = FALSE, conn = getOption("pg.conn"),
   .log = getOption("pg.log", TRUE))
 
 pgGetQuery(statement, key, norows, conn = getOption("pg.conn"),
@@ -40,9 +44,10 @@ pgExistsTable(name, conn = getOption("pg.conn"), .log = getOption("pg.log",
 pgExistsSchema(schema_name, conn = getOption("pg.conn"),
   .log = getOption("pg.log", TRUE))
 
-pgListTables(conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+pgListTables(schema_name, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
 
-pgTruncateTable(name, conn = getOption("pg.conn"),
+pgTruncateTable(name, silent = FALSE, conn = getOption("pg.conn"),
   .log = getOption("pg.log", TRUE))
 
 pgListFields(name, conn = getOption("pg.conn"), .log = getOption("pg.log",
@@ -56,6 +61,20 @@ pgListTableColumns(schema_name, select = c("table_schema", "table_name",
 
 pgDropSchema(schema_name, cascade = FALSE, silent = FALSE,
   conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgRemoveTable(name, cascade = FALSE, silent = FALSE,
+  conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgDropTable(name, cascade = FALSE, silent = FALSE,
+  conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgSendUpsert(stage_name, name, conflict_by, on_conflict = "DO NOTHING",
+  techstamp = TRUE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgUpsertTable(name, value, conflict_by, on_conflict = "DO NOTHING",
+  stage_name, techstamp = TRUE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
 }
 \arguments{
 \item{host}{character hostname/ip by default from ENV var `POSTGRES_HOST`}
@@ -69,6 +88,8 @@ pgDropSchema(schema_name, cascade = FALSE, silent = FALSE,
 \item{password}{character port by default from ENV var `POSTGRES_PASSWORD`}
 
 \item{statement}{character scalar}
+
+\item{silent}{logical catch potential errors, useful for potentially non existing ojbect on while dropping.}
 
 \item{conn}{active connection to postgres database, by default `getOption("pg.conn")`.}
 
@@ -90,7 +111,11 @@ pgDropSchema(schema_name, cascade = FALSE, silent = FALSE,
 
 \item{cascade}{logical use cascade drop while dropping object.}
 
-\item{silent}{logical catch potential errors, useful for potentially non existing ojbect on while dropping.}
+\item{stage_name}{character, staging schema-table name used for performing *Upsert*.}
+
+\item{conflict_by}{character vector, will be used collapsed in `ON CONFLICT (conflict_by) DO ...`.}
+
+\item{on_conflict}{character scalar to be send as `ON CONFLICT` postgres content. Key column set for conflict may be included here, but then should not be provided to `conflict_by` argument. Default `DO NOTHING`.}
 }
 \description{
 Many wrappers around `DBI::db*` functions. Some new wrappers added are `pgTruncateTable`, `pgExistsSchema`, `pgDropSchema`, `pgListTableColumns`. Follow `tests/tests.R` script for reproducible workflow with tests.
