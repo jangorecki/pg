@@ -3,23 +3,34 @@ importFrom(DBI, dbSendQuery, dbGetQuery, dbWriteTable, dbReadTable, dbExistsTabl
 importFrom(RPostgreSQL, PostgreSQL)
 importFrom(logR, logR)
 
-# pg
+# pg tech
 export(pgConnect)
+
+# pg basic
 export(pgSendQuery)
 export(pgGetQuery)
 export(pgWriteTable)
 export(pgReadTable)
-export(pgExistsTable)
-export(pgExistsSchema)
-export(pgListTables)
-export(pgTruncateTable)
-export(pgListFields)
-export(pgListTableColumns)
-export(pgDropSchema)
-export(pgDropTable)
-export(pgRemoveTable)
+
+# pg advanced
 export(pgSendUpsert)
 export(pgUpsertTable)
+export(pgTruncateTable)
+
+# pg table
+export(pgExistsTable)
+export(pgDropTable)
+export(pgRemoveTable)
+
+# pg schema
+export(pgExistsSchema)
+export(pgCreateSchema)
+export(pgDropSchema)
+
+# pg list
+export(pgListTables)
+export(pgListFields)
+export(pgListTableColumns)
 
 # tools
 export(create_run_table)
