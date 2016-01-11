@@ -39,8 +39,10 @@ pgConnect = function(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"), port = Sys
 
 #' @rdname pg
 pgSendQuery = function(statement, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.character(statement), is.logical(.log))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.character(statement), is.logical(.log), is.function(meta))
     invisible(logR(dbSendQuery(conn, statement),
+                   alert = !silent,
                    silent = silent,
                    meta = meta(r_fun = "dbSendQuery", r_args = statement),
                    .log = .log))
@@ -48,7 +50,8 @@ pgSendQuery = function(statement, silent = FALSE, conn = getOption("pg.conn"), .
 
 #' @rdname pg
 pgGetQuery = function(statement, key, norows, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.character(statement), is.logical(.log))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.character(statement), is.logical(.log), is.function(meta))
     data = logR(dbGetQuery(conn, statement),
                 silent = FALSE,
                 meta = meta(r_fun = "dbGetQuery", r_args = statement),
@@ -59,7 +62,8 @@ pgGetQuery = function(statement, key, norows, conn = getOption("pg.conn"), .log 
 
 #' @rdname pg
 pgWriteTable = function(name, value, techstamp = TRUE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log), is.logical(techstamp))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.logical(.log), is.logical(techstamp), is.function(meta))
     name = schema_table(name)
     if(techstamp){
         add_techstamp(value) # by meta cols ref
@@ -74,7 +78,8 @@ pgWriteTable = function(name, value, techstamp = TRUE, conn = getOption("pg.conn
 
 #' @rdname pg
 pgReadTable = function(name, key, norows, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.logical(.log), is.function(meta))
     name = schema_table(name)
     data = logR(dbReadTable(conn, name),
                 silent = FALSE,
@@ -86,7 +91,8 @@ pgReadTable = function(name, key, norows, conn = getOption("pg.conn"), .log = ge
 
 #' @rdname pg
 pgExistsTable = function(name, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.logical(.log), is.function(meta))
     name = schema_table(name)
     logR(dbExistsTable(conn, name),
          silent = FALSE,
@@ -106,7 +112,8 @@ pgExistsSchema = function(schema_name, conn = getOption("pg.conn"), .log = getOp
 
 #' @rdname pg
 pgListTables = function(schema_name, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.logical(.log), is.function(meta))
     if(!missing(schema_name)){
         in_schema = sprintf("and schemaname IN (%s)",paste(paste0("'",schema_name,"'"),collapse=","))
         logR(dbListTables(conn, in_schema),
@@ -133,8 +140,23 @@ pgTruncateTable = function(name, silent = FALSE, conn = getOption("pg.conn"), .l
 }
 
 #' @rdname pg
+pgCreateSchema = function(schema_name, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    sapply(schema_name,
+           function(schema) pgSendQuery(sprintf("CREATE SCHEMA %s;", schema),
+                                        silent = silent,
+                                        conn = conn,
+                                        .log = .log))
+}
+
+#' @rdname pg
+pgListSchema = function(){
+    stop("TO DO")
+}
+
+#' @rdname pg
 pgListFields = function(name, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.logical(.log), is.function(meta))
     name = schema_table(name)
     logR(dbListFields(conn, name),
          silent = FALSE,
@@ -161,13 +183,17 @@ pgDropSchema = function(schema_name, cascade = FALSE, silent = FALSE, conn = get
     stopifnot(!is.null(conn), is.logical(.log), is.character(schema_name), length(schema_name)>0L, is.logical(cascade), is.logical(silent))
     invisible(sapply(
         setNames(nm = schema_name),
-        function(schema) pgSendQuery(sprintf("DROP SCHEMA %s%s;", schema, if(cascade) " CASCADE" else ""), silent = silent, conn = conn, .log = .log)
+        function(schema) pgSendQuery(sprintf("DROP SCHEMA %s%s;", schema, if(cascade) " CASCADE" else ""),
+                                     silent = silent,
+                                     conn = conn,
+                                     .log = .log)
     ))
 }
 
 #' @rdname pg
 pgRemoveTable = function(name, cascade = FALSE, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
-    stopifnot(!is.null(conn), is.logical(.log), is.character(name), is.logical(cascade), is.logical(silent))
+    meta = getOption("logR.meta")
+    stopifnot(!is.null(conn), is.logical(.log), is.character(name), is.logical(cascade), is.logical(silent), is.function(meta))
     name = schema_table(name)
     # local dbRemoveTable to allow cascade
     dbRemoveTable = function(conn, name, cascade = FALSE){
@@ -179,6 +205,7 @@ pgRemoveTable = function(name, cascade = FALSE, silent = FALSE, conn = getOption
         else FALSE
     }
     logR(dbRemoveTable(conn, name, cascade),
+         alert = !silent,
          silent = silent,
          meta = meta(r_fun = "dbRemoveTable", r_args = paste(name, collapse=".")),
          .log = .log)
