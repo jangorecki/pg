@@ -13,5 +13,6 @@ Imports:
     RPostgreSQL,
     data.table (>= 1.9.6),
     logR (>= 2.1.2)
+Additional_repositories: https://jangorecki.github.io/logR, https://cran.rstudio.com
 License: GPL-3
 LazyData: TRUE
