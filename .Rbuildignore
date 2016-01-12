@@ -3,3 +3,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 .Rhistory
+tests/tests-big.data.table.R
+inst/cranlogs.R
