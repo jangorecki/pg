@@ -38,6 +38,13 @@ pgConnect = function(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"), port = Sys
 }
 
 #' @rdname pg
+pgGetVersion = function(conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    pgGetQuery("SELECT version();",
+               conn = conn,
+               .log = .log)
+}
+
+#' @rdname pg
 pgSendQuery = function(statement, silent = FALSE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
     meta = getOption("logR.meta")
     stopifnot(!is.null(conn), is.character(statement), is.logical(.log), is.function(meta))

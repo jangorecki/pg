@@ -5,6 +5,7 @@ importFrom(logR, logR)
 
 # pg tech
 export(pgConnect)
+export(pgGetVersion)
 
 # pg basic
 export(pgSendQuery)
