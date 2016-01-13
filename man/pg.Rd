@@ -2,12 +2,15 @@
 \name{pg}
 \alias{pg}
 \alias{pgConnect}
+\alias{pgCreateSchema}
 \alias{pgDropSchema}
 \alias{pgDropTable}
 \alias{pgExistsSchema}
 \alias{pgExistsTable}
 \alias{pgGetQuery}
+\alias{pgGetVersion}
 \alias{pgListFields}
+\alias{pgListSchema}
 \alias{pgListTableColumns}
 \alias{pgListTables}
 \alias{pgReadTable}
@@ -24,6 +27,8 @@ pgConnect(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"),
   dbname = Sys.getenv("POSTGRES_DB", "postgres"),
   user = Sys.getenv("POSTGRES_USER", "postgres"),
   password = Sys.getenv("POSTGRES_PASSWORD", "postgres"))
+
+pgGetVersion(conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
 
 pgSendQuery(statement, silent = FALSE, conn = getOption("pg.conn"),
   .log = getOption("pg.log", TRUE))
@@ -48,6 +53,11 @@ pgListTables(schema_name, conn = getOption("pg.conn"),
 
 pgTruncateTable(name, silent = FALSE, conn = getOption("pg.conn"),
   .log = getOption("pg.log", TRUE))
+
+pgCreateSchema(schema_name, silent = FALSE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgListSchema()
 
 pgListFields(name, conn = getOption("pg.conn"), .log = getOption("pg.log",
   TRUE))
@@ -86,13 +96,13 @@ pgUpsertTable(name, value, conflict_by, on_conflict = "DO NOTHING",
 
 \item{password}{character port by default from ENV var `POSTGRES_PASSWORD`}
 
-\item{statement}{character scalar}
-
-\item{silent}{logical catch potential errors, useful for potentially non existing ojbect on while dropping.}
-
 \item{conn}{active connection to postgres database, by default `getOption("pg.conn")`.}
 
 \item{.log}{logical default `getOption("pg.log",TRUE)` decides if call is logged using *logR*.}
+
+\item{statement}{character scalar}
+
+\item{silent}{logical catch potential errors, useful for potentially non existing ojbect on while dropping.}
 
 \item{key}{character vector of columns to be used to set data.table key on the db results.}
 
