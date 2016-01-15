@@ -261,3 +261,8 @@ pgUpsertTable = function(name, value, conflict_by, on_conflict = "DO NOTHING", s
     on.exit(if(drop_stage) pgDropTable(stage_name, conn = conn, .log = .log))
     pgSendUpsert(stage_name = stage_name, name = name, conflict_by = conflict_by, on_conflict = on_conflict, techstamp = techstamp, conn = conn, .log = .log)
 }
+
+#' @rdname pg
+pgDisconnect = function(conn = getOption("pg.conn")){
+    dbDisconnect(conn)
+}

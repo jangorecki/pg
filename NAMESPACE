@@ -1,11 +1,12 @@
 import(data.table)
-importFrom(DBI, dbSendQuery, dbGetQuery, dbWriteTable, dbReadTable, dbExistsTable, dbListTables, dbListFields, dbConnect)
+importFrom(DBI, dbSendQuery, dbGetQuery, dbWriteTable, dbReadTable, dbExistsTable, dbListTables, dbListFields, dbConnect, dbDisconnect)
 importFrom(RPostgreSQL, PostgreSQL)
 importFrom(logR, logR)
 
 # pg tech
 export(pgConnect)
 export(pgGetVersion)
+export(pgDisconnect)
 
 # pg basic
 export(pgSendQuery)

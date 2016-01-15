@@ -3,6 +3,7 @@
 \alias{pg}
 \alias{pgConnect}
 \alias{pgCreateSchema}
+\alias{pgDisconnect}
 \alias{pgDropSchema}
 \alias{pgDropTable}
 \alias{pgExistsSchema}
@@ -84,6 +85,8 @@ pgSendUpsert(stage_name, name, conflict_by, on_conflict = "DO NOTHING",
 pgUpsertTable(name, value, conflict_by, on_conflict = "DO NOTHING",
   stage_name, techstamp = TRUE, conn = getOption("pg.conn"),
   .log = getOption("pg.log", TRUE))
+
+pgDisconnect(conn = getOption("pg.conn"))
 }
 \arguments{
 \item{host}{character hostname/ip by default from ENV var `POSTGRES_HOST`}
