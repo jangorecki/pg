@@ -8,6 +8,7 @@
 \alias{pgDropTable}
 \alias{pgExistsSchema}
 \alias{pgExistsTable}
+\alias{pgExplain}
 \alias{pgGetQuery}
 \alias{pgGetVersion}
 \alias{pgListFields}
@@ -87,6 +88,9 @@ pgUpsertTable(name, value, conflict_by, on_conflict = "DO NOTHING",
   .log = getOption("pg.log", TRUE))
 
 pgDisconnect(conn = getOption("pg.conn"))
+
+pgExplain(statement, conn = getOption("pg.conn"), .log = getOption("pg.log",
+  TRUE))
 }
 \arguments{
 \item{host}{character hostname/ip by default from ENV var `POSTGRES_HOST`}

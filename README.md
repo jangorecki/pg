@@ -8,7 +8,7 @@ Postgres utilities for R language
 ## Features
 
 - wrappers on many commonly used `DBI::db*` functions enables logging, default values for various arguments, including connection `conn`.
-- new functions: `pgTruncateTable`, `pgUpsertTable`, `pgSendUpsent`, `pgExistsSchema`, `pgListTableColumns`, `pgDropSchema`.
+- new functions: `pgTruncateTable`, `pgUpsertTable`, `pgSendUpsent`, `pgExistsSchema`, `pgExplain`, `pgListTableColumns`, `pgGetVersion` and more.
 - technical row-level metadata stamping for data transferred to database.
 - process-level metadata logging with logR, `pg*` functions or any other call wrapped into `logR()`.
 - helpers for processing batches of the data.

@@ -266,3 +266,10 @@ pgUpsertTable = function(name, value, conflict_by, on_conflict = "DO NOTHING", s
 pgDisconnect = function(conn = getOption("pg.conn")){
     dbDisconnect(conn)
 }
+
+#' @rdname pg
+pgExplain = function(statement, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
+    cat((r <- pgGetQuery(sprintf("EXPLAIN ANALYZE %s;", statement), conn = conn, .log = .log))[["QUERY PLAN"]],
+        sep = "\n")
+    invisible(r)
+}

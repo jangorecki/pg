@@ -18,6 +18,7 @@ export(pgReadTable)
 export(pgSendUpsert)
 export(pgUpsertTable)
 export(pgTruncateTable)
+export(pgExplain)
 
 # pg table
 export(pgExistsTable)
