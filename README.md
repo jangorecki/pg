@@ -18,7 +18,6 @@ Postgres utilities for R language
 
 R
 ```r
-# install logR
 install.packages(c("microbenchmarkCore","logR","pg"), repos = paste0("https://",c(
     "cran.rstudio.com",
     "olafmersmann.github.io/drat",
