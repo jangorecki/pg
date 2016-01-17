@@ -19,20 +19,12 @@ Postgres utilities for R language
 R
 ```r
 # install logR
-install.packages(c("microbenchmarkCore","logR"), repos = paste0("https://",c(
+install.packages(c("microbenchmarkCore","logR","pg"), repos = paste0("https://",c(
     "cran.rstudio.com",
     "olafmersmann.github.io/drat",
-    "jangorecki.github.io/logR"
+    "jangorecki.github.io/logR",
+    "jangorecki.github.io/pg"
 )))
-
-library(devtools)
-
-# install pg
-install_github("jangorecki/pg")
-
-# currently not required
-# `match.cols` argument to dbWriteTable - hopefully will be merged to upstream
-#install_github("jangorecki/RPostgreSQL_old@newfeatures")
 ```
 
 postgres
