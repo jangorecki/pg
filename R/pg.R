@@ -70,7 +70,7 @@ pgGetQuery = function(statement, key, norows, conn = getOption("pg.conn"), .log 
 #' @rdname pg
 pgWriteTable = function(name, value, techstamp = TRUE, conn = getOption("pg.conn"), .log = getOption("pg.log",TRUE)){
     meta = getOption("logR.meta")
-    stopifnot(!is.null(conn), is.logical(.log), is.logical(techstamp), is.function(meta))
+    stopifnot(!is.null(conn), is.logical(.log), is.logical(techstamp), is.function(meta), is.data.table(value))
     name = schema_table(name)
     if(techstamp){
         add_techstamp(value) # by meta cols ref
