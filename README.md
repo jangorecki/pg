@@ -2,7 +2,7 @@
 
 Postgres utilities for R language
 
-- based on [RPostgreSQL](https://github.com/tomoakin/RPostgreSQL)
+- based on [RPostgreSQL](https://cran.r-project.org/web/packages/RPostgreSQL/)
 - logging powered by [logR](https://github.com/jangorecki/logR)
 
 ## Features
@@ -18,12 +18,7 @@ Postgres utilities for R language
 
 R
 ```r
-install.packages(c("microbenchmarkCore","logR","pg"), repos = paste0("https://",c(
-    "cran.rstudio.com",
-    "olafmersmann.github.io/drat",
-    "jangorecki.github.io/logR",
-    "jangorecki.github.io/pg"
-)))
+install.packages("pg", repos = c("https://cran.rstudio.com","http://jangorecki.gitlab.io/logR","http://jangorecki.gitlab.io/pg"))
 ```
 
 postgres
