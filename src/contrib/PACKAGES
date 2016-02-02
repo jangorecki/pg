@@ -2,6 +2,6 @@ Package: pg
 Version: 0.1.9
 Imports: DBI, RPostgreSQL, data.table (>= 1.9.6), logR (>= 2.1.2)
 License: GPL-3
-MD5sum: 0d9647222e39b7980dfc70a5cc84a5e3
+MD5sum: 666a829c6c107677b925181d1b6aab87
 NeedsCompilation: no
 

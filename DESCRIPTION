@@ -1,0 +1,18 @@
+Package: pg
+Type: Package
+Title: Postgres database tools for R
+Version: 0.1.9
+Date: 2016-01-10
+Author: Jan Gorecki
+Maintainer: Jan Gorecki <j.gorecki@wit.edu.pl>
+Description: Wrappers on RPostgreSQL interface to postgres database, by default
+    it log all action against postgres using logR package keeping the details like
+    in/out row count, timings, potential errors.
+Imports: DBI, RPostgreSQL, data.table (>= 1.9.6), logR (>= 2.1.2)
+Additional_repositories: http://jangorecki.github.io/logR,
+        https://olafmersmann.github.io/drat
+License: GPL-3
+LazyData: TRUE
+NeedsCompilation: no
+Packaged: 2016-02-02 18:37:23 UTC; root
+Built: R 3.2.3; ; 2016-02-02 18:50:49 UTC; unix

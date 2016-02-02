@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: pg* wrappers to DBI::db*</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pg {pg}"><tr><td>pg {pg}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>pg* wrappers to DBI::db*</h2>
+
+<h3>Description</h3>
+
+<p>Many wrappers around 'DBI::db*' functions. Some new wrappers added are 'pgTruncateTable', 'pgExistsSchema', 'pgDropSchema', 'pgListTableColumns'. Follow 'tests/tests.R' script for reproducible workflow with tests.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pgConnect(host = Sys.getenv("POSTGRES_HOST", "127.0.0.1"),
+  port = Sys.getenv("POSTGRES_PORT", "5432"),
+  dbname = Sys.getenv("POSTGRES_DB", "postgres"),
+  user = Sys.getenv("POSTGRES_USER", "postgres"),
+  password = Sys.getenv("POSTGRES_PASSWORD", "postgres"))
+
+pgGetVersion(conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgSendQuery(statement, silent = FALSE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgGetQuery(statement, key, norows, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgWriteTable(name, value, techstamp = TRUE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgReadTable(name, key, norows, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgExistsTable(name, conn = getOption("pg.conn"), .log = getOption("pg.log",
+  TRUE))
+
+pgExistsSchema(schema_name, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgListTables(schema_name, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgTruncateTable(name, silent = FALSE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgCreateSchema(schema_name, silent = FALSE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgListSchema()
+
+pgListFields(name, conn = getOption("pg.conn"), .log = getOption("pg.log",
+  TRUE))
+
+pgListTableColumns(schema_name, select = c("table_schema", "table_name",
+  "column_name", "ordinal_position", "column_default", "is_nullable",
+  "data_type", "character_maximum_length", "numeric_precision",
+  "datetime_precision"), conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgDropSchema(schema_name, cascade = FALSE, silent = FALSE,
+  conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgRemoveTable(name, cascade = FALSE, silent = FALSE,
+  conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgDropTable(name, cascade = FALSE, silent = FALSE,
+  conn = getOption("pg.conn"), .log = getOption("pg.log", TRUE))
+
+pgSendUpsert(stage_name, name, conflict_by, on_conflict = "DO NOTHING",
+  techstamp = TRUE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgUpsertTable(name, value, conflict_by, on_conflict = "DO NOTHING",
+  stage_name, techstamp = TRUE, conn = getOption("pg.conn"),
+  .log = getOption("pg.log", TRUE))
+
+pgDisconnect(conn = getOption("pg.conn"))
+
+pgExplain(statement, conn = getOption("pg.conn"), .log = getOption("pg.log",
+  TRUE))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>character hostname/ip by default from ENV var 'POSTGRES_HOST'</p>
+</td></tr>
+<tr valign="top"><td><code>port</code></td>
+<td>
+<p>character port by default from ENV var 'POSTGRES_PORT'</p>
+</td></tr>
+<tr valign="top"><td><code>dbname</code></td>
+<td>
+<p>character port by default from ENV var 'POSTGRES_DB'</p>
+</td></tr>
+<tr valign="top"><td><code>user</code></td>
+<td>
+<p>character port by default from ENV var 'POSTGRES_USER'</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>character port by default from ENV var 'POSTGRES_PASSWORD'</p>
+</td></tr>
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>active connection to postgres database, by default 'getOption(&quot;pg.conn&quot;)'.</p>
+</td></tr>
+<tr valign="top"><td><code>.log</code></td>
+<td>
+<p>logical default 'getOption(&quot;pg.log&quot;,TRUE)' decides if call is logged using *logR*.</p>
+</td></tr>
+<tr valign="top"><td><code>statement</code></td>
+<td>
+<p>character scalar</p>
+</td></tr>
+<tr valign="top"><td><code>silent</code></td>
+<td>
+<p>logical catch potential errors, useful for potentially non existing ojbect on while dropping.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>character vector of columns to be used to set data.table key on the db results.</p>
+</td></tr>
+<tr valign="top"><td><code>norows</code></td>
+<td>
+<p>arbitrat object which will be returned in case of 0 rows result from db.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>character</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>data.table</p>
+</td></tr>
+<tr valign="top"><td><code>techstamp</code></td>
+<td>
+<p>logical decides if 'dbWriteTable' will add technical metadata on saving each object to db.</p>
+</td></tr>
+<tr valign="top"><td><code>schema_name</code></td>
+<td>
+<p>character vector of schema names to be checked by 'pgExistsSchema' or dropped by 'pgDropSchema'.</p>
+</td></tr>
+<tr valign="top"><td><code>select</code></td>
+<td>
+<p>character vector of column names to fetch from 'information_schema.columns' table.</p>
+</td></tr>
+<tr valign="top"><td><code>cascade</code></td>
+<td>
+<p>logical use cascade drop while dropping object.</p>
+</td></tr>
+<tr valign="top"><td><code>stage_name</code></td>
+<td>
+<p>character, staging schema-table name used for performing *Upsert*.</p>
+</td></tr>
+<tr valign="top"><td><code>conflict_by</code></td>
+<td>
+<p>character vector, will be used collapsed in 'ON CONFLICT (conflict_by) DO ...'.</p>
+</td></tr>
+<tr valign="top"><td><code>on_conflict</code></td>
+<td>
+<p>character scalar to be send as 'ON CONFLICT' postgres content. Key column set for conflict may be included here, but then should not be provided to 'conflict_by' argument. Default 'DO NOTHING'.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>1. Instead of reusing 'conn' arg in each query just save it to option 'options(&quot;pg.conn&quot; = pgConnect())' and it will be reused.
+2. Logging is by default enabled, table for logs needs to be created, use 'logR::logR_schema()' potentially with custom defined metadata columns. See 'tests/tests.R' or *logR* package documentation.
+3. Stamping data by technical run id requires another table which can be created using 'create_run_table()'. This feature has to be utilized as logR custom metadata values, see 'tests/tests.R'.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pg</em> version 0.1.9 <a href="00Index.html">Index</a>]</div>
+</body></html>
