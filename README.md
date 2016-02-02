@@ -14,11 +14,13 @@ Postgres utilities for R language
 - helpers for processing batches of the data.
 - enables vectorize input for many wrappers.
 
+logR package is going to be in *suggests* in future.  
+
 ## Installation
 
 R
 ```r
-install.packages("pg", repos = c("https://cran.rstudio.com","http://jangorecki.gitlab.io/logR","http://jangorecki.gitlab.io/pg"))
+install.packages("pg", repos = c("https://cran.rstudio.com","http://jangorecki.github.io/logR","http://jangorecki.github.io/pg"))
 ```
 
 postgres
