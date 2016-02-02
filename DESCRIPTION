@@ -14,5 +14,5 @@ Additional_repositories: http://jangorecki.github.io/logR,
 License: GPL-3
 LazyData: TRUE
 NeedsCompilation: no
-Packaged: 2016-02-02 18:37:23 UTC; root
-Built: R 3.2.3; ; 2016-02-02 18:50:49 UTC; unix
+Packaged: 2016-02-02 19:41:16 UTC; root
+Built: R 3.2.3; ; 2016-02-02 19:47:40 UTC; unix
