@@ -20,7 +20,7 @@ logR package is going to be in *suggests* in future.
 
 R
 ```r
-install.packages("pg", repos = c("https://cran.rstudio.com","https://jangorecki.github.io/logR","https://jangorecki.github.io/pg"))
+install.packages("pg", repos = c("https://cran.rstudio.com","https://jangorecki.gitlab.io/logR","https://jangorecki.gitlab.io/pg"))
 ```
 
 postgres
@@ -90,7 +90,7 @@ pgReadTable(c("r_tech","logr"), .log = FALSE)[, .(in_rows, out_rows), .(run_id, 
 pgGetQuery("SELECT DISTINCT ON (a) * FROM r_data.techstamp ORDER BY a, r_timestamp DESC;")
 ```
 
-For more examples and full reproducible environment see CI workflow and [tests/tests.R](tests/tests.R). Be aware travis-ci uses 5433 port instead of default 5432, this can easily be controlled by environment variables as demonstrated in travis yaml.  
+For more examples and full reproducible environment see CI workflow and [tests/tests.R](tests/tests.R).  
 
 ## Notes
 
