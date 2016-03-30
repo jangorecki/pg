@@ -5,3 +5,4 @@
 .Rhistory
 tests/tests-big.data.table.R
 inst/cranlogs.R
+^\..+

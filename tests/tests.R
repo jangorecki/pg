@@ -26,7 +26,7 @@ logR_schema(meta = create_meta)
 # expected tables and column count in db
 stopifnot(all.equal(
     pgListTableColumns(.log=FALSE)[, .N, .(table_schema, table_name)],
-    data.table(table_schema="r_tech", table_name="logr", N=18L, key = c("table_schema","table_name"))
+    data.table(table_schema="r_tech", table_name="logr", N=19L, key = c("table_schema","table_name"))
 ))
 
 # expected row count and status content with and without `.log` argument, valid only for sequence run after rebuilding schema
@@ -37,7 +37,7 @@ stopifnot(identical(pgGetQuery("SELECT * FROM r_tech.logr;", .log = FALSE)$statu
 create_run_table(schema_name = "r_tech", table_name = "run", .log = FALSE)
 stopifnot(all.equal(
     pgListTableColumns(.log=FALSE)[, .N, .(table_schema, table_name)],
-    data.table(table_schema=rep("r_tech",2L), table_name=c("logr","run"), N=c(18L,3L), key = c("table_schema","table_name"))
+    data.table(table_schema=rep("r_tech",2L), table_name=c("logr","run"), N=c(19L,3L), key = c("table_schema","table_name"))
 ))
 
 # create schema data
@@ -96,6 +96,7 @@ stopifnot(all.equal(
 ))
 
 # temporal query: point-in-time
+Sys.setenv(TZ = "UTC") # required for non-UTC
 ts = pgGetQuery("SELECT DISTINCT r_timestamp FROM r_data.techstamp WHERE run_id = 1;", .log = FALSE)$r_timestamp + 0.005
 stopifnot(all.equal(
     pgGetQuery(sprintf("SELECT DISTINCT ON (a) * FROM r_data.techstamp WHERE r_timestamp <= '%s'::TIMESTAMPTZ ORDER BY a, r_timestamp DESC;", ts)),
@@ -169,5 +170,3 @@ stopifnot(
 tbls = pgListTables(schema_name = "r_data")
 #pgDropTable(tbls, cascade = TRUE)
 #stopifnot(!pgExistsTable(tbls))
-
-q("no")

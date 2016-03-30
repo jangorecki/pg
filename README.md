@@ -1,4 +1,4 @@
-# pg [![Build Status](https://travis-ci.org/jangorecki/pg.svg?branch=master)](https://travis-ci.org/jangorecki/pg)
+# pg [![Build Status](https://gitlab.com/jangorecki/pg/badges/master/build.svg)](https://gitlab.com/jangorecki/pg/builds)
 
 Postgres utilities for R language
 

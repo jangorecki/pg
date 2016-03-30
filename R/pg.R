@@ -181,6 +181,7 @@ pgListTableColumns = function(schema_name, select = c("table_schema", "table_nam
                       sprintf("AND table_schema IN (%s) ", paste(paste0("'",schema_name,"'"), collapse=", "))
                   } else "")
     DT = pgGetQuery(sql, conn = conn, .log = .log)
+    is_nullable = NULL # skip CRAN note for local DT var
     if("is_nullable" %in% select) DT[, is_nullable := c("YES" = TRUE, "NO" = FALSE)[is_nullable]]
     keys = c("table_schema","table_name","ordinal_position")
     setkeyv(DT, if(any(keys %in% select)) keys[keys %in% select])

@@ -1,4 +1,4 @@
-image: jangorecki/r-base-dev
+image: docker.io/jangorecki/r-pkg
 services:
 - postgres
 
@@ -12,29 +12,18 @@ variables:
 pages:
   script:
     # non-R dependencies
-    - apt-get update -qy
-    - apt-get install -y libpq-dev
-    # build pkg
-    - R CMD build . --no-build-vignettes --no-manual
+    - apt-get update -qq
+    - apt-get -qq install -y libpq-dev
     # install deps
-    - Rscript -e 'install.packages(c("RPostgreSQL","data.table"), repos = "https://cran.rstudio.com")'
+    - Rscript -e 'install.packages(c("RPostgreSQL","data.table","logR"), repos = "https://cran.rstudio.com","https://jangorecki.gitlab.io/logR")'
     # install suggests
-    - Rscript -e 'install.packages(c("microbenchmarkCore","logR"), repos = c("https://jangorecki.github.io/logR","https://olafmersmann.github.io/drat","https://cran.rstudio.com"))'
+    - Rscript -e 'install.packages("microbenchmarkCore", repos = "https://olafmersmann.github.io/drat")'
+    # build pkg
+    - R CMD build .
     # run check
-    - R CMD check $(ls -1t *.tar.gz | head -n 1) --no-vignettes --no-build-vignettes --no-manual --as-cran
-    # gl-pages dir and Rcheck results dir
-    - mkdir public Rcheck
-    # export Rcheck results
-    - mv $(find . -maxdepth 1 -name "*.Rcheck" -type d) Rcheck
-    # install drat with `packageHtml` function
-    - Rscript -e 'install.packages("drat", repos = "https://jangorecki.github.io/drat")'
-    # produce drat repo
-    - Rscript -e 'drat::insertPackage(list.files(pattern = "*\\.tar\\.gz$"), repodir = "public")'
-    # produce html homepage and manual
-    - Rscript -e 'drat::packageHtml(repodir = "public", repo.url = "https://jangorecki.github.io/pg", repo.cran = TRUE, manual = TRUE)'
-  only:
-    - master
+    - R CMD check $(ls -1t *.tar.gz | head -n 1) --no-manual --as-cran
+    # produce artifacts
+    - Rscript -e 'drat::insertArtifacts(repodir="public", repo.url="https://jangorecki.gitlab.io/pg", repo.cran=TRUE)'
   artifacts:
     paths:
-      - Rcheck
       - public

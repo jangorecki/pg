@@ -12,7 +12,7 @@ Imports:
     DBI,
     RPostgreSQL,
     data.table (>= 1.9.6),
-    logR (>= 2.1.2)
-Additional_repositories: https://jangorecki.github.io/logR, https://olafmersmann.github.io/drat
+    logR (>= 2.1.5)
+Additional_repositories: https://jangorecki.gitlab.io/logR
 License: GPL-3
 LazyData: TRUE
